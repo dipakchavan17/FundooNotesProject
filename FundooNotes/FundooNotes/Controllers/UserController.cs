@@ -53,5 +53,25 @@ namespace FundooNotes.Controllers
                 throw;
             }
         }
+        [HttpPost("forgotPassword")]
+        public IActionResult ForgetPassword(string email)
+        {
+            try
+            {
+                var result = userBL.ForgetPassword(email);
+                if (result != null)
+                    return this.Ok(new { success = true, message = "mail sent  successful" });
+                else
+                    return this.BadRequest(new { success = false, message = "enter valid email" });
+
+
+            }
+            catch (System.Exception)
+            {
+
+                throw;
+            }
+        }
+
     }
 }
