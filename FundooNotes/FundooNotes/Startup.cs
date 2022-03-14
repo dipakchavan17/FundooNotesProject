@@ -41,10 +41,10 @@ namespace FundooNotes
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Welcome to FundooNotes" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "FundooNotes API's", Version = "v1" });
                 var securitySchema = new OpenApiSecurityScheme
                 {
-                    Description = "Using the Authorization header with the Bearer scheme.",
+                    Description = "Authorization with Bearer scheme.",
                     Name = "Authorization",
                     In = ParameterLocation.Header,
                     Type = SecuritySchemeType.Http,
@@ -55,10 +55,32 @@ namespace FundooNotes
                         Id = "Bearer"
                     }
                 };
+                c.AddSecurityDefinition("Bearer", securitySchema);
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    { securitySchema, new[] { "Bearer" } }
+                });
 
             });
-
+            services.AddAuthentication(option =>
+            {
+                option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = false,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(Configuration["Jwt:SecretKey"])) // Configuration["JwtToken:SecretKey"]
+                };
+            });
         }
+
+
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -71,6 +93,7 @@ namespace FundooNotes
             app.UseHttpsRedirection();
 
             app.UseRouting();
+            app.UseAuthentication();
 
             app.UseAuthorization();
 

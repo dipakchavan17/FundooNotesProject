@@ -2,6 +2,7 @@
 using CommonLayer.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace FundooNotes.Controllers
 {
@@ -72,6 +73,37 @@ namespace FundooNotes.Controllers
                 throw;
             }
         }
+        [HttpPut("ResetPassword")]
+        public IActionResult ResetPassword(string password,string confirmpassword)
+        {
+            try
+            {
+                var email = User.FindFirst(ClaimTypes.Email).Value.ToString();
+                var user = userBL.ResetPassword(email, password, confirmpassword);
+                if (!user)
+                {
+                    return this.BadRequest(new { success = false, message = "enter valid password" });
+
+                }
+
+
+
+                else
+                {
+                    return this.Ok(new { success = true, message = "reset password is successful" });
+                }
+            
+
+
+
+            }
+            catch (System.Exception)
+            {
+
+                throw;
+            }
+        }
+
 
     }
 }
